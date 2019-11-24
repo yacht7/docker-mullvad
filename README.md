@@ -12,4 +12,4 @@ docker run -d --name=mullvad --cap-add=NET_ADMIN --device=/dev/net/tun -e REGION
 | --- | --- | --- |
 | `ACCT_NUM` | | 16-digit account number with `+` as separators (`1234+5678+9123+4567`) |
 | `LOG_LEVEL` | `3` | Sets OpenVPN verbosity (`1`-`11`) |
-| `REGION` | `us-ga` | One of the Mullvad regions |
+| `REGION` | `us-ga` | One of the Mullvad regions (see list of [region codes](region_codes) as of 2019/11/24) |
