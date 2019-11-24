@@ -8,7 +8,6 @@ docker run -d \
   --name=mullvad \
   --cap-add=NET_ADMIN \
   --device=/dev/net/tun \
-  -e REGION=ca-qc \
   -e ACCT_NUM=1234+5678+9123+4567 \
   yacht7/mullvad
 ```
