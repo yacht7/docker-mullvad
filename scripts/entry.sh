@@ -10,10 +10,17 @@ echo -e "
 "
 echo -e "Running setup.sh\n"
 
+# All environment variable checking in one step is not straightforward.
+# $ACCT_NUM - simple - string whose format is constant
+# $LOG_LEVEL - simple - integer from 1-11 
+# $REGION - challenging - string whose value must be an existing Mullvad VPN endpoint
+#     Note: Since $REGION must exist on Mullvad's side, this check has to be done after
+#     pulling the OpenVPN configuration zip bundle from Mullvad using $ACCT_NUM.
+
 echo "Checking account number format"
-# Make sure ACCT_NUM is in the format of 1234+1234+1234+1234
+# Make sure ACCT_NUM is in the format of 0123+4567+8901+2345
 if ! $(echo $ACCT_NUM | grep -Eq '\d{4}\+\d{4}\+\d{4}\+\d{4}'); then
-    printf "[ERROR] Account number \"$ACCT_NUM\" is not formatted correctly."
+    >&2 echo "[ERROR] Account number \"$ACCT_NUM\" is not formatted correctly."
     exit 1
 fi
 echo -e "[INFO] Account number is formatted correctly\n"
@@ -21,8 +28,12 @@ echo -e "[INFO] Account number is formatted correctly\n"
 echo "Pulling zip bundle from Mullvad"
 response=$(curl -si --compressed 'https://mullvad.net/en/account/login/')
 
-csrftoken=$(echo $response | grep -o 'csrftoken=\w*' | cut -d '=' -f 2)
-csrfmiddlewaretoken=$(echo $response | grep -o 'name=\"csrfmiddlewaretoken\" value=\"\w*\"' | cut -d ' ' -f 2 | cut -d '=' -f 2 | sed 's/"//g')
+csrftoken=$(echo $response | grep -o 'csrftoken=\w*' \
+        | cut -d '=' -f 2)
+csrfmiddlewaretoken=$(echo $response | grep -o 'name=\"csrfmiddlewaretoken\" value=\"\w*\"' \
+        | cut -d ' ' -f 2 \
+        | cut -d '=' -f 2 \
+        | sed 's/"//g')
 sessionid=$(curl -si --compressed \
         -H "Cookie: csrftoken=$csrftoken" \
         -d "csrfmiddlewaretoken=${csrfmiddlewaretoken}&next=%2Fen%2Faccount%2Flogin%2F&account_number=${ACCT_NUM}" \
