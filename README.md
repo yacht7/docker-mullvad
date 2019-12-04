@@ -1,6 +1,8 @@
 # Mullvad Client for Docker
 https://mullvad.net
 
+![Docker Pulls](https://img.shields.io/docker/pulls/yacht7/mullvad?style=flat-square)
+
 ## Usage
 ### docker run
 ```
