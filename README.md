@@ -1,7 +1,7 @@
 # Mullvad Client for Docker
-https://mullvad.net
+[![Mullvad VPN](https://mullvad.net/media/press/MullvadVPN_logo_Round_RGB_Color_positive.png)](https://mullvad.net)
 
-![Docker Pulls](https://img.shields.io/docker/pulls/yacht7/mullvad?style=flat-square)
+[![Docker Pulls](https://img.shields.io/docker/pulls/yacht7/mullvad?style=flat-square)](https://hub.docker.com/r/yacht7/mullvad)
 
 ## Usage
 ### docker run
