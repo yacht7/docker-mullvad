@@ -52,7 +52,7 @@ echo -e "[INFO] Zip bundle pulled and extracted\n"
 
 echo "Making sure desired region exists"
 for file in /data/mullvad/*.conf; do
-    echo ${file%.*} | cut -d '_' -f 2 >> ../region_codes
+    echo ${file%.*} | cut -d '_' -f 2 >> /data/region_codes
 done
 
 if ! grep -q $REGION /data/region_codes; then
