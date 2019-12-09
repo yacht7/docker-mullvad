@@ -10,8 +10,25 @@ docker run -d \
   --name=mullvad \
   --cap-add=NET_ADMIN \
   --device=/dev/net/tun \
-  -e ACCT_NUM=1234+5678+9123+4567 \
+  -e ACCT_NUM=0123+4567+8901+2345 \
   yacht7/mullvad
+```
+
+### docker-compose
+```
+version: '2'
+
+services:
+    mullvad:
+        image: yacht7/mullvad
+        container_name: mullvad
+        cap_add:
+            - NET_ADMIN
+        devices:
+            - /dev/net/tun
+        environment:
+            - ACCT_NUM=0123+4567+8901+2345
+        restart: unless-stopped
 ```
 
 ## Environment variables
