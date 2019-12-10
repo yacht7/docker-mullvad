@@ -3,11 +3,13 @@ FROM alpine:3.10
 LABEL maintainer="yacht7"
 
 ENV REGION=us-ga \
+    SUBNETS=192.168.0.0/24 \
     LOG_LEVEL=3
 
 RUN \
     apk add --no-cache \
         curl \
+        ip6tables \
         openvpn && \
     mkdir /data
 

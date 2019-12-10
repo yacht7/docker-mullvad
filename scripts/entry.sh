@@ -81,22 +81,31 @@ cp \
 
 echo -e "[INFO] Required changes made and files are moved into place\n"
 
-echo "Creating iptables ruleset"
+################################################################################
+
+echo "Creating iptables ruleset and configuring routes"
+
 # https://mullvad.net/en/help/linux-openvpn-installation/
 # Enabling a kill switch section (slightly modified)
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
 iptables -P OUTPUT DROP
+ip6tables -P INPUT DROP
+ip6tables -P FORWARD DROP
+ip6tables -P OUTPUT DROP
 
 iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
-iptables -A INPUT -s 192.168.0.0/24 -j ACCEPT
-iptables -A OUTPUT -d 192.168.0.0/24 -j ACCEPT
+for subnet in ${SUBNETS//,/ }; do
+    ip route add $subnet via $(ip r | grep 'default via' | cut -d " " -f 3) dev eth0
+    iptables -A INPUT -s $subnet -j ACCEPT
+    iptables -A OUTPUT -d $subnet -j ACCEPT
+done
 
-iptables -A OUTPUT -d 193.138.218.74 -j ACCEPT
+iptables -A OUTPUT ! -d 193.138.218.74 -p tcp --dport 53 -j DROP
 
 iptables -A INPUT -i tun+ -j ACCEPT
 iptables -A OUTPUT -o tun+ -j ACCEPT
@@ -109,9 +118,9 @@ for ip in $(nslookup $domain localhost | tail -n +4 | grep -Eo '\d{1,3}\.\d{1,3}
     iptables -A OUTPUT -o eth+ -d $ip -p udp -m multiport --dports 53,1194:1197,1300:1303,1400 -j ACCEPT
 done
 
-ip route add 192.168.0.0/24 via $(ip r | grep 'default via' | cut -d " " -f 3) dev eth0
+echo -e "[INFO] iptables rules created and routes configured\n"
 
-echo -e "[INFO] iptables rules created\n"
+################################################################################
 
 sleep 5
 
