@@ -9,7 +9,6 @@ ENV REGION=us-ga \
 RUN \
     apk add --no-cache \
         curl \
-        ip6tables \
         openvpn && \
     mkdir /data
 
