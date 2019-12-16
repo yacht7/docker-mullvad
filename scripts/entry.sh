@@ -85,7 +85,7 @@ echo -e "[INFO] Required changes made and files are moved into place\n"
 
 echo "Creating iptables ruleset and configuring routes"
 
-local_subnet=$(ip r | grep -v 'default via' | grep $INTERFACE | tail -n 1 | cut -d " " -f 1)
+local_subnet=$(ip r | grep -v 'default via' | grep eth0 | tail -n 1 | cut -d " " -f 1)
 default_gateway=$(ip r | grep 'default via' | cut -d " " -f 3) 
 # https://mullvad.net/en/help/linux-openvpn-installation/
 # Enabling a kill switch section (slightly modified)
