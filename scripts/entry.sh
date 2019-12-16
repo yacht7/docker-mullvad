@@ -85,6 +85,8 @@ echo -e "[INFO] Required changes made and files are moved into place\n"
 
 echo "Creating iptables ruleset and configuring routes"
 
+local_subnet=$(ip r | grep -v 'default via' | grep $INTERFACE | tail -n 1 | cut -d " " -f 1)
+default_gateway=$(ip r | grep 'default via' | cut -d " " -f 3) 
 # https://mullvad.net/en/help/linux-openvpn-installation/
 # Enabling a kill switch section (slightly modified)
 iptables -P INPUT DROP
@@ -96,8 +98,11 @@ iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
+iptables -A INPUT -s $local_subnet -d $local_subnet -j ACCEPT
+iptables -A OUTPUT -s $local_subnet -d $local_subnet -j ACCEPT
+
 for subnet in ${SUBNETS//,/ }; do
-    ip route add $subnet via $(ip r | grep 'default via' | cut -d " " -f 3) dev eth0
+    ip route add $subnet via $default_gateway dev eth0
     iptables -A INPUT -s $subnet -j ACCEPT
     iptables -A OUTPUT -d $subnet -j ACCEPT
 done
