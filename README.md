@@ -2,7 +2,7 @@
 [![Mullvad VPN](https://mullvad.net/media/press/MullvadVPN_logo_Round_RGB_Color_positive.png)](https://mullvad.net)
 
 ## Creating
-### docker run
+### `docker run`
 ```
 docker run -d \
   --name=mullvad \
@@ -12,7 +12,7 @@ docker run -d \
   yacht7/mullvad
 ```
 
-### docker-compose
+### `docker-compose`
 ```
 version: '2'
 
@@ -34,7 +34,7 @@ services:
 | Variable | Default | Description |
 | --- | --- | --- |
 | `ACCT_NUM` | | 16-digit account number with `+` as separators (`1234+5678+9123+4567`) |
-| `FORWARDED_PORTS` | Port(s) forwarded by [Mullvad](https://mullvad.net/en/account/ports/) (e.g. `12345` or `9876,54321`) |
+| `FORWARDED_PORTS` | | Port(s) forwarded by [Mullvad](https://mullvad.net/en/account/ports/) (e.g. `12345` or `9876,54321`) |
 | `LOG_LEVEL` | `3` | OpenVPN verbosity (`1`-`11`) |
 | `REGION` | `us-ga` | One of the Mullvad regions (see list of [region codes](region_codes) as of 2019/11/24) |
 | `SUBNETS` | `192.168.0.0/24` | A comma-separated (no whitespaces) list of LAN subnets (e.g. `192.168.0.0/24,192.168.1.0/24`) |
