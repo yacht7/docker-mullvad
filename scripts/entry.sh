@@ -109,16 +109,26 @@ done
 
 iptables -A OUTPUT ! -d 193.138.218.74 -p tcp --dport 53 -j DROP
 
-iptables -A INPUT -i tun+ -j ACCEPT
-iptables -A OUTPUT -o tun+ -j ACCEPT
+iptables -A INPUT -i tun0 -j ACCEPT
+iptables -A OUTPUT -o tun0 -j ACCEPT
 
 # for list of ports see the following link:
 # https://mullvad.net/en/help/tag/connectivity/#39
 domain=$(grep -o "${REGION}.mullvad.net" /etc/openvpn/mullvad_${REGION}.conf)
 for ip in $(nslookup $domain localhost | tail -n +4 | grep -Eo '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}' | sort | uniq); do
-    iptables -A OUTPUT -o eth+ -d $ip -p tcp -m multiport --dports 80,443,1401 -j ACCEPT
-    iptables -A OUTPUT -o eth+ -d $ip -p udp -m multiport --dports 53,1194:1197,1300:1303,1400 -j ACCEPT
+    iptables -A OUTPUT -o eth0 -d $ip -p tcp -m multiport --dports 80,443,1401 -j ACCEPT
+    iptables -A OUTPUT -o eth0 -d $ip -p udp -m multiport --dports 53,1194:1197,1300:1303,1400 -j ACCEPT
 done
+
+if [ ! -z $FORWARDED_PORTS ]; then
+    for port in ${FORWARDED_PORTS//,/ }; do
+        if ! $(echo $port | grep -Eq '\d{4,5}'); then
+            echo "$port not a valid port. Ignoring."
+        fi
+        iptables -A INPUT -i tun0 -p tcp --dport $port -j ACCEPT
+        iptables -A INPUT -i tun0 -p udp --dport $port -j ACCEPT
+    done
+fi
 
 echo -e "[INFO] iptables rules created and routes configured\n"
 

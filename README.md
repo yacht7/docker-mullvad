@@ -34,7 +34,8 @@ services:
 | Variable | Default | Description |
 | --- | --- | --- |
 | `ACCT_NUM` | | 16-digit account number with `+` as separators (`1234+5678+9123+4567`) |
-| `LOG_LEVEL` | `3` | Sets OpenVPN verbosity (`1`-`11`) |
+| `FORWARDED_PORTS` | Port(s) forwarded by [Mullvad](https://mullvad.net/en/account/ports/) (e.g. `12345` or `9876,54321`) |
+| `LOG_LEVEL` | `3` | OpenVPN verbosity (`1`-`11`) |
 | `REGION` | `us-ga` | One of the Mullvad regions (see list of [region codes](region_codes) as of 2019/11/24) |
 | `SUBNETS` | `192.168.0.0/24` | A comma-separated (no whitespaces) list of LAN subnets (e.g. `192.168.0.0/24,192.168.1.0/24`) |
 
@@ -52,7 +53,7 @@ docker run --rm -it --network=container:mullvad alpine wget -qO - ifconfig.me
 ```
 
 ### Port forwarding
-Port forwarding is handled outside of this image. You'll want to add ports in the [Mullvad account page](https://mullvad.net/en/account/ports/). Just click to add ports, and they will automatically be forwarded to your container when it connects.
+Port forwarding is handled outside of this image. You'll want to add ports in the [Mullvad account page](https://mullvad.net/en/account/ports/). Just click to add ports, list them in the environment variable, and they will automatically be forwarded to your container when it connects.
 
 ### Using with other containers
 Once you have your Mullvad container up and running, you can tell other containers to use `mullvad`'s network stack which gives any container the ability to utilize the VPN tunnel. There are a few ways to accomplish this depending how how your container is created.
