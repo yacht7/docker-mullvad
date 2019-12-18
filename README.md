@@ -53,7 +53,7 @@ docker run --rm -it --network=container:mullvad alpine wget -qO - ifconfig.me
 ```
 
 ### Port forwarding
-Port forwarding is handled outside of this image. You'll want to add ports in the [Mullvad account page](https://mullvad.net/en/account/ports/). Just click to add ports, list them in the environment variable, and they will automatically be forwarded to your container when it connects.
+Just click the button to add port(s) on the [Mullvad account page](https://mullvad.net/en/account/ports/), list them in the environment variable, and they will automatically be forwarded to your container when it connects.
 
 ### Using with other containers
 Once you have your Mullvad container up and running, you can tell other containers to use `mullvad`'s network stack which gives any container the ability to utilize the VPN tunnel. There are a few ways to accomplish this depending how how your container is created.
