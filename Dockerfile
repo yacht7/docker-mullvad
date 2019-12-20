@@ -11,9 +11,10 @@ RUN \
         curl \
         openvpn && \
     mkdir /data
-
 COPY scripts/ /data
-
 RUN chmod 500 /data/entry.sh
 
+HEALTHCHECK CMD ping -qc 3 193.138.218.74
+
 ENTRYPOINT ["/data/entry.sh"]
+
