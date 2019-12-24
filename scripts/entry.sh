@@ -17,38 +17,53 @@ echo -e "Running setup.sh\n"
 #     Note: Since $REGION must exist on Mullvad's side, this check has to be done after
 #     pulling the OpenVPN configuration zip bundle from Mullvad using $ACCT_NUM.
 
-echo "Checking account number format"
+################################################################################
+
+echo "Pulling configuration bundle from Mullvad"
+
 # Make sure ACCT_NUM is in the format of 0123+4567+8901+2345
 if ! $(echo $ACCT_NUM | grep -Eq '\d{4}\+\d{4}\+\d{4}\+\d{4}'); then
     >&2 echo "[ERROR] Account number \"$ACCT_NUM\" is not formatted correctly."
     exit 1
 fi
-echo -e "[INFO] Account number is formatted correctly\n"
 
-echo "Pulling zip bundle from Mullvad"
+# Capture response from Mullvad's site to pull a CSRF token and session ID to use in other HTTP requests
 response=$(curl -si --compressed 'https://mullvad.net/en/account/login/')
 
 csrftoken=$(echo $response | grep -o 'csrftoken=\w*' \
         | cut -d '=' -f 2)
+
 csrfmiddlewaretoken=$(echo $response | grep -o 'name=\"csrfmiddlewaretoken\" value=\"\w*\"' \
         | cut -d ' ' -f 2 \
         | cut -d '=' -f 2 \
         | sed 's/"//g')
+
 sessionid=$(curl -si --compressed \
         -H "Cookie: csrftoken=$csrftoken" \
         -d "csrfmiddlewaretoken=${csrfmiddlewaretoken}&next=%2Fen%2Faccount%2Flogin%2F&account_number=${ACCT_NUM}" \
         'https://mullvad.net/en/account/login/' | grep -o 'sessionid=\w*' | cut -d '=' -f 2)
 
+# Pull the configuration bundle
 curl -s --compressed -o /data/configs.zip \
     -H "Cookie: csrftoken=$csrftoken; sessionid=$sessionid" \
     -d "csrfmiddlewaretoken=${csrfmiddlewaretoken}&platform=linux&region=all&port=0" \
     'https://mullvad.net/en/download/config/?platform=linux'
 
-mkdir -p /data/mullvad
+# Make sure it doesn't already exist from a previous container
+#   (This will happen following a container auto-restart)
+if [ -d /data/mullvad ]; then
+    rm -rf /data/mullvad/*
+else
+    mkdir -p /data/mullvad
+fi
+
+# Then extract it and clean up
 unzip -jq /data/configs.zip -d /data/mullvad 
 rm /data/configs.zip
+
 echo -e "[INFO] Zip bundle pulled and extracted\n"
 
+################################################################################
 
 echo "Making sure desired region exists"
 for file in /data/mullvad/*.conf; do
@@ -62,12 +77,14 @@ if ! grep -q $REGION /data/region_codes; then
 fi
 echo -e "[INFO] Desired region exists\n"
 
+################################################################################
+
 echo "Making required changes to the config file"
 sed -i \
     -e '/up /c up \/etc\/openvpn\/up.sh' \
     -e '/down /c down \/etc\/openvpn\/down.sh' \
-    -e 's/proto udp/proto udp4/' \
-    -e 's/proto tcp/proto tcp4/' \
+    -e 's/^proto udp$/proto udp4/' \
+    -e 's/^proto tcp$/proto tcp4/' \
     /data/mullvad/mullvad_${REGION}.conf
 
 echo 'pull-filter ignore "route-ipv6"' >> /data/mullvad/mullvad_${REGION}.conf
@@ -98,8 +115,8 @@ iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
-iptables -A INPUT -s $local_subnet -d $local_subnet -j ACCEPT
-iptables -A OUTPUT -s $local_subnet -d $local_subnet -j ACCEPT
+iptables -A INPUT -s $local_subnet -j ACCEPT
+iptables -A OUTPUT -d $local_subnet -j ACCEPT
 
 for subnet in ${SUBNETS//,/ }; do
     ip route add $subnet via $default_gateway dev eth0
@@ -123,7 +140,7 @@ done
 if [ ! -z $FORWARDED_PORTS ]; then
     for port in ${FORWARDED_PORTS//,/ }; do
         if ! $(echo $port | grep -Eq '\d{4,5}'); then
-            echo "$port not a valid port. Ignoring."
+            echo "[WARN] $port not a valid port. Ignoring."
         fi
         iptables -A INPUT -i tun0 -p tcp --dport $port -j ACCEPT
         iptables -A INPUT -i tun0 -p udp --dport $port -j ACCEPT
