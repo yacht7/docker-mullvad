@@ -38,6 +38,7 @@ services:
 | `LOG_LEVEL` | `3` | OpenVPN verbosity (`1`-`11`) |
 | `REGION` | `us-ga` | One of the Mullvad regions (see list of [region codes](region_codes) as of 2019/11/24) |
 | `SUBNETS` | `192.168.0.0/24` | A comma-separated (no whitespaces) list of LAN subnets (e.g. `192.168.0.0/24,192.168.1.0/24`) |
+| `TINYPROXY` | | Whether or not to enable the forward proxy; to enable, set to `yes` |
 
 #### `REGION`
 The expected value for this variable is the region code that is used in the filenames of the OpenVPN configuration files. For example, if you download the zip bundle of config files from [here](https://mullvad.net/en/download/config/?platform=linux) and take a look at the filename, you'll see something like `mullvad_xx.conf` or `mullvad_xx-xxx.conf`. The value you're looking for is the `xx` or `xx-xxx` string.

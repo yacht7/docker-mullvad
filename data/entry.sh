@@ -153,12 +153,34 @@ echo -e "[INFO] iptables rules created and routes configured\n"
 
 sleep 5
 
-echo "[INFO] Running openvpn with desired config"
+echo "[INFO] Running openvpn"
 cd /etc/openvpn
 
 if ! $(echo $LOG_LEVEL | grep -Eq '^([1-9]|1[0-1])$'); then
     printf "[WARN] Invalid log level $LOG_LEVEL. Setting to default."
     LOG_LEVEL=3
 fi
+
+################################################################################
+
+{
+    if [ $TINYPROXY = "on" ]; then
+        echo "[INFO] Running tinyproxy"
+        # Wait for VPN connection to be established
+        while ! ping -c 1 193.138.218.74 > /dev/null 2&>1; do
+            sleep 1
+        done
+
+        addr_eth=$(hostname -i)
+        addr_tun=$(ip a show dev tun0 | grep inet | cut -d " " -f 6 | cut -d "/" -f 1)
+
+        sed -i \
+            -e "/Listen/c Listen $addr_eth" \
+            -e "/Bind/c Bind $addr_tun" \
+            /etc/tinyproxy/tinyproxy.conf
+
+        tinyproxy -c /etc/tinyproxy/tinyproxy.conf
+    fi
+} &
 
 openvpn --verb $LOG_LEVEL --config mullvad_${REGION}.conf

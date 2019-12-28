@@ -9,10 +9,12 @@ ENV REGION=us-ga \
 RUN \
     apk add --no-cache \
         curl \
-        openvpn && \
-    mkdir /data
-COPY scripts/ /data
-RUN chmod 500 /data/entry.sh
+        openvpn \
+        tinyproxy && \
+    mkdir -p /data /var/log/openvpn
+COPY data/ /data
+RUN chmod 500 /data/entry.sh && \
+    mv /data/tinyproxy.conf /etc/tinyproxy/tinyproxy.conf
 
 HEALTHCHECK CMD ping -qc 3 193.138.218.74
 
