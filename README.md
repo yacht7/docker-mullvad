@@ -28,6 +28,21 @@ services:
             - ACCT_NUM=0123+4567+8901+2345
         restart: unless-stopped
 ```
+#### Considerations
+##### Tinyproxy
+If enabling Tinyproxy, you'll want to publish port 8888 to access the proxy. To do that, add `-p 8888:8888` if you're using `docker run`, or add the below snippet to the `mullvad` service definition in your Compose file if using `docker-compose`.
+```
+ports:
+    - 8888:8888
+```
+
+##### Handling ports intended for connected containers
+If you plan on having [other containers use `mullvad`'s network stack](#using-with-other-containers) and those containers have web UIs, you'll want to publish the web UI ports on `mullvad` instead of the connected container. To do that, add `-p <host_port>:<container_port>` if you're using `docker run`, or add the below snippet to the `mullvad` service definition in your Compose file if using `docker-compose`.
+```
+ports:
+    - <host_port>:<container_port>
+```
+In both cases, replace `<host_port>` and `<container_port>` with the port used by your connected container.
 
 ### Environment variables
 
@@ -65,3 +80,5 @@ If your container is being created with
 3. `docker run`, add `--network=container:mullvad` as an option to `docker run`.
 
 Once running and provided your container has `wget` or `curl`, you can run `docker exec <container_name> wget -qO - ifconfig.me` or `docker exec <container_name> curl -s ifconfig.me` to get the public IP of the container and make sure everything is working as expected. This IP should match the one of `mullvad`.
+
+If the connected container needs to publish ports, see [this](#handling-ports-intended-for-connected-containers) section.
