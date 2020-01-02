@@ -4,7 +4,6 @@ LABEL maintainer="yacht7"
 
 ENV REGION=us-ga \
     SUBNETS=192.168.0.0/24 \
-    TINYPROXY=off \
     LOG_LEVEL=3
 
 RUN \
