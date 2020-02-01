@@ -1,3 +1,6 @@
+# IMPORTANT
+This image no longer works as Mullvad removed the ability to pull configuration files as I was doing it. Since there was no simple way to work around this, I've created another image that is a BYOC (bring your own config) OpenVPN client. It provides essentially the same feature set while being able to handle most, if not all, VPN providers instead of just Mullvad. Here is a link: https://github.com/yacht7/docker-openvpn-client.
+
 # Mullvad Client for Docker
 [![Mullvad VPN](https://mullvad.net/media/press/MullvadVPN_logo_Round_RGB_Color_positive.png)](https://mullvad.net)
 
